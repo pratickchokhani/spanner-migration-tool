@@ -40,6 +40,8 @@ import (
 func (r *ReportImpl) GenerateStructuredReport(driverName string, dbName string, conv *internal.Conv, badWrites map[string]int64, printTableReports bool, printUnexpecteds bool) StructuredReport {
 	//Create report object
 	var smtReport = StructuredReport{}
+
+	fmt.Printf("exiting due to error: fawefaeafor table\n")
 	tableReports := AnalyzeTables(conv, badWrites)
 	//1. Generate summary
 	rating, summary := GenerateSummary(conv, tableReports, badWrites)

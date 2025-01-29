@@ -51,6 +51,7 @@ func (reportHandler *ReportAPIHandler) GetDStructuredReport(w http.ResponseWrite
 	sessionState := session.GetSessionState()
 	sessionState.Conv.ConvLock.Lock()
 	defer sessionState.Conv.ConvLock.Unlock()
+	fmt.Printf("exiting due to error: , while processing schema for table\n")
 	structuredReport := reportHandler.ReportGenerator.GenerateStructuredReport(sessionState.Driver, sessionState.DbName, sessionState.Conv, nil, true, true)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(structuredReport)
