@@ -39,6 +39,7 @@ import (
 // such as CSV, TXT etc.
 func (r *ReportImpl) GenerateStructuredReport(driverName string, dbName string, conv *internal.Conv, badWrites map[string]int64, printTableReports bool, printUnexpecteds bool) StructuredReport {
 	//Create report object
+	fmt.Printf("efaewfeawfwefaw table\n")
 	var smtReport = StructuredReport{}
 
 	fmt.Printf("exiting due to error: fawefaeafor table\n")
