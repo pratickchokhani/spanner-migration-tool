@@ -125,4 +125,6 @@ type ReportInterface interface {
 	GenerateTextReport(structuredReport StructuredReport, w *bufio.Writer)
 }
 
-type ReportImpl struct {}
+type ReportImpl struct {
+	elem ReportInterface
+}
