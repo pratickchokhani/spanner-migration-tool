@@ -16,6 +16,7 @@
 package reports
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/internal"
@@ -79,6 +80,7 @@ func (r *ReportImpl) GenerateStructuredReport(driverName string, dbName string, 
 	if printUnexpecteds {
 		smtReport.UnexpectedConditions = fetchUnexceptedConditions(driverName, conv)
 	}
+	fmt.Printf("exiting due to error: %s , while processing schema for table\n", smtReport)
 
 	return smtReport
 }
