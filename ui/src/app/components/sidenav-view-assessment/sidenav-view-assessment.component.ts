@@ -3,7 +3,7 @@ import ConversionRate from 'src/app/model/conversion-rate'
 import IViewAssesmentData from 'src/app/model/view-assesment'
 import { ClickEventService } from 'src/app/services/click-event/click-event.service'
 import { SidenavService } from 'src/app/services/sidenav/sidenav.service'
-import IStructuredReport, {IIssue, ITableReport} from '../../model/structured-report'
+import IStructuredReport, { IIssue, ITableReport } from '../../model/structured-report'
 import { FetchService } from 'src/app/services/fetch/fetch.service'
 import * as JSZip from 'jszip'
 import IIssueReport, { TablesInformation } from 'src/app/model/issue-report'
@@ -63,6 +63,7 @@ export class SidenavViewAssessmentComponent implements OnInit {
       this.conversionRateCount = data.conversionRates
       let tableCount: number =
         this.conversionRateCount.good + this.conversionRateCount.ok + this.conversionRateCount.bad
+      console.log("44444444")
       if (tableCount > 0) {
         for (let key in this.conversionRatePercentage) {
           this.conversionRatePercentage[key as keyof ConversionRate] = Number(
@@ -70,11 +71,13 @@ export class SidenavViewAssessmentComponent implements OnInit {
           )
         }
       }
+      console.log("33333333333")
       if (tableCount > 0) {
         this.setRateCountDataSource(tableCount)
       }
+      console.log("22222222222222222")
       this.fetch.getDStructuredReport().subscribe({
-        next: (structuredReport) => {
+        next: (structuredReport: IStructuredReport) => {
           this.summaryText = structuredReport.summary.text
         }
       })
@@ -281,7 +284,7 @@ export class SidenavViewAssessmentComponent implements OnInit {
   appendIssueWithTableInformation(Issues: IIssue[], report: Map<string, TablesInformation>, defaultIssue: TablesInformation, fetchedTableReport: ITableReport) {
     for (var issue of Issues) {
       let isPresent: boolean = report.has(issue.category)
-      
+
       // if the issue already exists in the report, we create a new issue description
       // and duplicate the existing one into it. This duplication is necessary because the value 
       // is passed by reference. After that, we add the table to that existing issue.
