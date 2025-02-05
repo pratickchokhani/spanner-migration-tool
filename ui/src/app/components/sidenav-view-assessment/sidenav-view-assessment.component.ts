@@ -189,13 +189,9 @@ export class SidenavViewAssessmentComponent implements OnInit {
           let allIssues = fetchedTableReport.issues
           // If this function is called again and if the number of issues in that session is zero, 
           // it will skip the for loop below. Therefore, we are setting the issueTableData to null here
-          // if (allIssues == null) {
-          //   this.issueTableData_Errors = []
-          //   this.issueTableData_Warnings = []
-          //   this.issueTableData_Suggestions = []
-          //   this.issueTableData_Notes = []
-          //   return
-          // }
+          if (allIssues == null) {
+            continue
+          }
           console.log("231321312321313")
           console.log(fetchedTableReport)
 
