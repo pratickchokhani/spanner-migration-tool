@@ -173,8 +173,8 @@ export class SidenavViewAssessmentComponent implements OnInit {
     console.log("fjekljflkejwlkafjlkw")
     this.fetch.getDStructuredReport().subscribe({
       next: (resStructured: IStructuredReport) => {
-        console.log("fjeklajflwk: " + resStructured)
-        console.log("fjeklajflwk: " + resStructured.tableReports)
+        console.log("fjeklajflwk: " + JSON.stringify(resStructured))
+        console.log("fjeklajflwk: " + JSON.stringify(resStructured.tableReports))
         let fetchedTableReports = resStructured.tableReports
         var report: IIssueReport = {
           errors: new Map<string, TablesInformation>(),
