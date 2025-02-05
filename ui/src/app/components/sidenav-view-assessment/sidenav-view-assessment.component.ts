@@ -84,6 +84,7 @@ export class SidenavViewAssessmentComponent implements OnInit {
         tableCount: 0,
         tableNamesJoinedByComma: '',
       }
+      console.log("11111111111111111")
       this.fetch.getIssueDescription().subscribe({
         next: (issueDescription) => {
           this.issueDescription = issueDescription
@@ -166,10 +167,11 @@ export class SidenavViewAssessmentComponent implements OnInit {
   // issueTableData_Suggestions and issueTableData_Notes 
   // to work as dataSource required in the summarized table report
   generateIssueReport() {
+    console.log("fjekljflkejwlkafjlkw")
     this.fetch.getDStructuredReport().subscribe({
       next: (resStructured: IStructuredReport) => {
-        console.log(resStructured)
-        console.log(resStructured.tableReports)
+        console.log("fjeklajflwk: " + resStructured)
+        console.log("fjeklajflwk: " + resStructured.tableReports)
         let fetchedTableReports = resStructured.tableReports
         var report: IIssueReport = {
           errors: new Map<string, TablesInformation>(),
