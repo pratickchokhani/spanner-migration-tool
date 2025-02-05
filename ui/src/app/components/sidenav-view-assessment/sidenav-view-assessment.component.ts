@@ -197,6 +197,7 @@ export class SidenavViewAssessmentComponent implements OnInit {
           //   return
           // }
           console.log("231321312321313")
+          console.log(fetchedTableReport)
 
           // iterate each issue
           for (var issue of allIssues) {
