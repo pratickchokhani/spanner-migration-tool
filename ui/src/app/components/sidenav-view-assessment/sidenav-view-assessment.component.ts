@@ -196,6 +196,7 @@ export class SidenavViewAssessmentComponent implements OnInit {
             this.issueTableData_Notes = []
             return
           }
+          console.log("231321312321313")
 
           // iterate each issue
           for (var issue of allIssues) {
@@ -203,37 +204,48 @@ export class SidenavViewAssessmentComponent implements OnInit {
               tableCount: 0,
               tableNames: new Set<string>(),
             }
+            console.log("12")
             switch (issue.issueType) {
               case "Error":
               case "Errors":
+                console.log("13")
                 // store errors with table count and table names in report.errors 
                 let errorIssues = issue.issueList
                 this.appendIssueWithTableInformation(errorIssues, report.errors, defaultIssue, fetchedTableReport)
+                console.log("14")
                 break
 
               case "Warnings":
               case "Warning":
+                console.log("15")
                 // store warnings with table count and table names in report.warnings
                 let warningIssues = issue.issueList
                 this.appendIssueWithTableInformation(warningIssues, report.warnings, defaultIssue, fetchedTableReport)
+                console.log("16")
                 break
 
               case "Suggestion":
               case "Suggestions":
+                console.log("17")
                 // store suggestions with table count and table names in report.suggestions
                 let suggestionIssues = issue.issueList
                 this.appendIssueWithTableInformation(suggestionIssues, report.suggestions, defaultIssue, fetchedTableReport)
+                console.log("18")
                 break
 
               case "Note":
               case "Notes":
+                console.log("19")
                 // store notes with table count and table names in report.notes
                 let noteIssues = issue.issueList
                 this.appendIssueWithTableInformation(noteIssues, report.notes, defaultIssue, fetchedTableReport)
+                console.log("201")
                 break
             }
           }
         }
+
+        console.log("2121")
         console.log(JSON.stringify(report))
 
         // populate issueTableData_Warnings with data from report.warnings
