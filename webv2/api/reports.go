@@ -53,6 +53,10 @@ func (reportHandler *ReportAPIHandler) GetDStructuredReport(w http.ResponseWrite
 	defer sessionState.Conv.ConvLock.Unlock()
 	fmt.Printf("exiting due to error: , while processing schema for table %s\n", sessionState.Driver)
 	fmt.Printf("exiting due to error: , while processing schema for table %s\n", sessionState.DbName)
+	if reportHandler == nil || reportHandler.ReportGenerator == nil {
+	} else {
+		fmt.Printf("jfkeljflkwejaflkjwlflw  mooojfe\n")
+	}
 	var badWrites map[string]int64
 	structuredReport := reportHandler.ReportGenerator.GenerateStructuredReport(sessionState.Driver, sessionState.DbName, sessionState.Conv, badWrites, true, true)
 	fmt.Printf("exifefwafwting due to error: %s , while processing schema for table\n", structuredReport)
