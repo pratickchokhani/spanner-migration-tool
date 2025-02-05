@@ -173,8 +173,9 @@ export class SidenavViewAssessmentComponent implements OnInit {
     console.log("fjekljflkejwlkafjlkw")
     this.fetch.getDStructuredReport().subscribe({
       next: (resStructured: IStructuredReport) => {
-        console.log("fjeklajflwk: " + JSON.stringify(resStructured))
-        console.log("fjeklajflwk: " + JSON.stringify(resStructured.tableReports))
+        // console.log("fjeklajflwk: " + JSON.stringify(resStructured))
+        // console.log("fjeklajflwk: " + JSON.stringify(resStructured.tableReports))
+        console.log("00000000000000000")
         let fetchedTableReports = resStructured.tableReports
         var report: IIssueReport = {
           errors: new Map<string, TablesInformation>(),
@@ -233,6 +234,7 @@ export class SidenavViewAssessmentComponent implements OnInit {
             }
           }
         }
+        console.log(JSON.stringify(report))
 
         // populate issueTableData_Warnings with data from report.warnings
         let map_report = report.warnings
