@@ -185,8 +185,8 @@ export class SidenavViewAssessmentComponent implements OnInit {
         }
         // iterate each table
         for (var fetchedTableReport of fetchedTableReports) {
+          console.log("01110101")
           let allIssues = fetchedTableReport.issues
-
           // If this function is called again and if the number of issues in that session is zero, 
           // it will skip the for loop below. Therefore, we are setting the issueTableData to null here
           if (allIssues == null) {
@@ -194,7 +194,6 @@ export class SidenavViewAssessmentComponent implements OnInit {
             this.issueTableData_Warnings = []
             this.issueTableData_Suggestions = []
             this.issueTableData_Notes = []
-            return
           }
           console.log("231321312321313")
 
