@@ -83,7 +83,7 @@ func (r *ReportImpl) GenerateStructuredReport(driverName string, dbName string, 
 	if printUnexpecteds {
 		smtReport.UnexpectedConditions = fetchUnexceptedConditions(driverName, conv)
 	}
-	fmt.Printf("exiting due to error: %s , while processing schema for table\n", smtReport)
+	fmt.Printf("exiting due to error: while processing schema for table\n")
 
 	return smtReport
 }
