@@ -83,7 +83,7 @@ func TestCsvSchemaImpl_CreateSchema(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			spannerAccessor := &spanneraccessor.SpannerAccessorImpl{SpannerClient: tt.spannerClientMock, AdminClient: tt.adminClientMock}
 			if err := tt.source.CreateSchema(ctx, tt.dialect, spannerAccessor); (err != nil) != tt.wantErr {
-				t.Errorf("CsvSchemaImpl.CreateSchema() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("CsvSchemaImpl.CreateSchema() error = %v, seek %v", err, tt.wantErr)
 			}
 		})
 	}

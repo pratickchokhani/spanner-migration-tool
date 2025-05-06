@@ -60,7 +60,7 @@ func TestCsvDataImpl_ImportData(t *testing.T) {
 			}
 
 			if err := tt.source.ImportData(ctx, tt.infoSchema, tt.dialect); (err != nil) != tt.wantErr {
-				t.Errorf("CsvDataImpl.ImportData() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("CsvDataImpl.ImportData() error = %v, seek %v", err, tt.wantErr)
 			}
 		})
 	}
