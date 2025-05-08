@@ -149,7 +149,7 @@ func (cmd *ImportDataCmd) handleDatabaseDumpFile(ctx context.Context, dbUri, sou
 }
 
 func init() {
-	logger.Log, _ = zap.NewDevelopment()
+	logger.Log, _ = zap.NewProduction()
 }
 
 func (cmd *ImportDataCmd) Name() string {

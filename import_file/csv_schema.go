@@ -5,7 +5,6 @@ import (
 	csv2 "encoding/csv"
 	"fmt"
 	"io"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -47,7 +46,7 @@ type PrimaryKey struct {
 func (source *CsvSchemaImpl) CreateSchema(ctx context.Context, dialect string, sp *spanneraccessor.SpannerAccessorImpl) error {
 
 	dbURI := fmt.Sprintf("projects/%s/instances/%s/databases/%s", source.ProjectId, source.InstanceId, source.DbName)
-	colDef, err := parseSchema(source.SchemaUri, rune(source.CsvFieldDelimiter[0]))
+	colDef, err := parseSchema(ctx, source.SchemaUri, rune(source.CsvFieldDelimiter[0]))
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("Unable to parse schema URI %v", err))
 		return err
@@ -85,14 +84,19 @@ func (source *CsvSchemaImpl) CreateSchema(ctx context.Context, dialect string, s
 	return nil
 }
 
-func parseSchema(schemaUri string, delimiter rune) ([]ColumnDefinition, error) {
-	schemaFile, err := os.Open(schemaUri)
+func parseSchema(ctx context.Context, schemaUri string, delimiter rune) ([]ColumnDefinition, error) {
+	schemaFile, err := NewFileReader(ctx, schemaUri)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file: %v", err)
 	}
 	defer schemaFile.Close()
 
-	reader := csv2.NewReader(schemaFile)
+	schemaFileIoReader, err := schemaFile.CreateReader(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error creating reader: %v", err)
+	}
+
+	reader := csv2.NewReader(schemaFileIoReader)
 	reader.Comma = delimiter
 	reader.TrimLeadingSpace = true
 

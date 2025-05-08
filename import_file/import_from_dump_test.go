@@ -185,6 +185,7 @@ func TestCreateSchema(t *testing.T) {
 			file, err := os.CreateTemp("", "testfile.sql")
 			file.WriteString(tc.dumpContent)
 			file.Close()
+			defer os.Remove(file.Name())
 
 			dbDumpProcessorMock := &common.MockDbDump{}
 			dbDumpProcessorMock.On("ProcessDump", mock.Anything, mock.Anything).Return(tc.processDumpError)
@@ -194,11 +195,16 @@ func TestCreateSchema(t *testing.T) {
 			schemaToSchema := &common.MockSchemaToSpanner{}
 			schemaToSchema.On("SchemaToSpannerDDL", mock.Anything, mock.Anything, mock.Anything).Return(tc.schemaToSpannerError)
 
+			fileReader, err := NewFileReader(context.Background(), file.Name())
+			assert.NoError(t, err)
+			defer fileReader.Close()
+
 			source := &ImportFromDumpImpl{
 				ProjectId:       "test-project",
 				InstanceId:      "test-instance",
 				DatabaseName:    "test-db",
 				DumpUri:         file.Name(),
+				dumpReader:      fileReader,
 				SourceFormat:    tc.sourceFormat,
 				SpannerAccessor: spannerAccessorMock,
 				dbDumpProcessor: dbDumpProcessorMock,
@@ -264,11 +270,17 @@ func TestImportData(t *testing.T) {
 			file, err := os.CreateTemp("", "testfile.sql")
 			file.WriteString(tc.dumpContent)
 			file.Close()
+			defer os.Remove(file.Name())
+
+			fileReader, err := NewFileReader(context.Background(), file.Name())
+			assert.NoError(t, err)
+
 			source := &ImportFromDumpImpl{
 				ProjectId:       "test-project",
 				InstanceId:      "test-instance",
 				DatabaseName:    "test-db",
 				DumpUri:         file.Name(),
+				dumpReader:      fileReader,
 				SourceFormat:    tc.sourceFormat,
 				SpannerAccessor: spannerAccessorMock,
 				dbDumpProcessor: dbDumpProcessorMock,
@@ -342,7 +354,10 @@ func TestFinalize(t *testing.T) {
 	defer os.Remove(file.Name())
 
 	source := &ImportFromDumpImpl{
-		dumpReader: file,
+		dumpReader: &LocalFileReaderImpl{
+			uri:  file.Name(),
+			file: file,
+		},
 	}
 
 	source.Close()

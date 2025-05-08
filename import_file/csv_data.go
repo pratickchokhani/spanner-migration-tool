@@ -49,9 +49,20 @@ func (source *CsvDataImpl) ImportData(ctx context.Context, infoSchema *spanner.I
 		columnNames = append(columnNames, conv.SpSchema[tableId].ColDefs[v].Name)
 	}
 
+	fileReader, err := NewFileReader(context.Background(), source.SourceUri)
+	if err != nil {
+		return err
+	}
+	defer fileReader.Close()
+
+	fileIoReader, err := fileReader.CreateReader(ctx)
+	if err != nil {
+		return err
+	}
+
 	csv := csv.CsvImpl{}
 	err = csv.ProcessSingleCSV(conv, source.TableName, columnNames,
-		conv.SpSchema[tableId].ColDefs, source.SourceUri, "", rune(source.CsvFieldDelimiter[0]))
+		conv.SpSchema[tableId].ColDefs, fileIoReader, "", rune(source.CsvFieldDelimiter[0]))
 	if err != nil {
 		return err
 	}
