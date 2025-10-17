@@ -15,6 +15,7 @@ package spanneraccessor
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -312,6 +313,9 @@ func (sp *SpannerAccessorImpl) CreateDatabase(ctx context.Context, dbURI string,
 		}
 
 	}
+
+	stmtStr, _ := json.Marshal(req)
+	logger.Log.Info(fmt.Sprintf("Creating database %s", stmtStr))
 
 	op, err := sp.AdminClient.CreateDatabase(ctx, req)
 	if err != nil {
