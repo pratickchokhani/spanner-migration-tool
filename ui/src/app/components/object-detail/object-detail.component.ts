@@ -225,7 +225,7 @@ export class ObjectDetailComponent implements OnInit, OnDestroy {
     this.interleaveType = this.getInterleaveTypeFromConv()
     this.onDeleteAction = this.getInterleaveOnDeleteActionFromConv() ?? ''
 
-  
+
     this.isEditMode = false
     this.isFkEditMode = false
     this.isIndexEditMode = false
@@ -251,7 +251,8 @@ export class ObjectDetailComponent implements OnInit, OnDestroy {
       this.displayedPkColumns.splice(8, 0, "spAutoGen");
       this.srcDisplayedColumns.splice(2, 0, "srcAutoGen");
       this.displayedPkColumns.splice(2, 0, "srcAutoGen");
-      this.srcDisplayedColumns.push("srcDefaultValue");;
+      this.srcDisplayedColumns.push("srcGeneratedColExp");
+      this.srcDisplayedColumns.push("srcDefaultValue");
       this.spDisplayedColumns.splice(4, 0,"spDefaultValue");
       this.spColspan+=2;
       this.srcColspan+=2;
@@ -300,6 +301,7 @@ export class ObjectDetailComponent implements OnInit, OnDestroy {
           srcIsPk: new FormControl(row.srcIsPk),
           srcIsNotNull: new FormControl(row.srcIsNotNull),
           srcDefaultValue: new FormControl(row.srcDefaultValue),
+          srcGeneratedColExp: new FormControl(row.srcGeneratedColExp),
           srcColMaxLength: new FormControl(row.srcColMaxLength),
           srcAutoGen: new FormControl(row.srcAutoGen),
           spOrder: new FormControl(row.srcOrder),
@@ -369,6 +371,7 @@ export class ObjectDetailComponent implements OnInit, OnDestroy {
             srcIsPk: new FormControl(col.srcIsPk),
             srcIsNotNull: new FormControl(col.srcIsNotNull),
             srcDefaultValue: new FormControl(col.srcDefaultValue),
+            srcGeneratedColExp: new FormControl(col.srcGeneratedColExp),
             srcColMaxLength: new FormControl(col.srcColMaxLength),
             srcAutoGen: new FormControl(col.srcAutoGen),
             spOrder: new FormControl(col.spOrder),
@@ -408,6 +411,7 @@ export class ObjectDetailComponent implements OnInit, OnDestroy {
             srcIsPk: new FormControl(col.srcIsPk),
             srcIsNotNull: new FormControl(col.srcIsNotNull),
             srcDefaultValue: new FormControl(col.srcDefaultValue),
+            srcGeneratedColExp: new FormControl(col.srcGeneratedColExp),
             srcColMaxLength: new FormControl(col.srcColMaxLength),
             srcAutoGen: new FormControl(col.srcAutoGen),
             spOrder: new FormControl(col.srcOrder),
@@ -1512,7 +1516,7 @@ export class ObjectDetailComponent implements OnInit, OnDestroy {
         console.error('Interleave type cannot be empty');
         return;
       }
-      
+
       let tableId = this.currentObject!.id;
 
       this.data

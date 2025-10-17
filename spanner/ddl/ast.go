@@ -31,6 +31,8 @@ import (
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/logger"
 )
 
+type GeneratedColType string
+
 const (
 	// Types supported by Spanner with google_standard_sql (default) dialect.
 	// Bool represent BOOL type.
@@ -78,7 +80,9 @@ const (
 	// Jsonb represents the PG.JSONB type
 	PGJSONB string = "JSONB"
 	// PGMaxLength represents sentinel for Type's Len field in PG.
-	PGMaxLength = 2621440
+	PGMaxLength                          = 2621440
+	GeneratedColStored  GeneratedColType = "STORED"
+	GeneratedColVirtual GeneratedColType = "VIRTUAL"
 )
 
 var STANDARD_TYPE_TO_PGSQL_TYPEMAP = map[string]string{
@@ -253,12 +257,12 @@ func (cd ColumnDef) PrintColumnDef(c Config) (string, string) {
 		s += cd.DefaultValue.PrintDefaultValue(cd.T)
 		s += cd.AutoGen.PrintAutoGenCol()
 	}
-	var  opts []string
+	var opts []string
 	if cd.Opts != nil {
 		if opt, ok := cd.Opts["cassandra_type"]; ok && opt != "" {
 			opts = append(opts, fmt.Sprintf("cassandra_type = '%s'", opt))
 		}
-	}	
+	}
 	if len(opts) > 0 {
 		s += " OPTIONS (" + strings.Join(opts, ", ") + ")"
 	}
@@ -443,6 +447,13 @@ type CreateIndex struct {
 	StoredColumnIds []string
 	// We have no requirements for null-filtered option and
 	// interleaving clauses yet, so we omit them for now.
+}
+
+// GeneratedColumn represents a Generated Column.
+type GeneratedColumn struct {
+	IsPresent bool
+	Value     Expression
+	Type      GeneratedColType
 }
 
 type AutoGenCol struct {

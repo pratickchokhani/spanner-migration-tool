@@ -150,6 +150,18 @@
               </td>
             </ng-container>
 
+            <ng-container matColumnDef="srcGeneratedColExp" *ngIf="mySqlSource">
+              <th mat-header-cell class="table_header" *matHeaderCellDef>Generated-Col</th>
+              <td mat-cell *matCellDef="let element">
+                <div
+                  class="trimmed-text"
+                  matTooltip="{{ element.get('srcGeneratedColExp').value }}"
+                  matTooltipPosition="above">
+                  {{ element.get('srcGeneratedColExp').value.GenerationType !== '' ? element.get('srcGeneratedColExp').value.GenerationType : 'None' }}
+                </div>
+              </td>
+            </ng-container>
+
             <ng-container matColumnDef="srcIsPk">
               <th class="table_header" mat-header-cell *matHeaderCellDef>Pk</th>
               <td mat-cell *matCellDef="let element">
@@ -326,13 +338,13 @@
               <td mat-cell *matCellDef="let element">
                 <div *ngIf="!isEditMode" class="trimmed-text"
                      matTooltip="{{ element.get('spDefaultValue').value }}" matTooltipPosition="above">
-                  {{ element.get('spDefaultValue').value }} 
+                  {{ element.get('spDefaultValue').value }}
                 </div>
-            
+
                 <div *ngIf="isEditMode">
-                  <input matInput class="name_input" type="text" 
-                         [formControl]="element.get('spDefaultValue')" 
-                         matTooltip="Specify the default value"/> 
+                  <input matInput class="name_input" type="text"
+                         [formControl]="element.get('spDefaultValue')"
+                         matTooltip="Specify the default value"/>
                 </div>
               </td>
             </ng-container>

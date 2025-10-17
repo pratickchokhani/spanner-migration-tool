@@ -101,6 +101,7 @@ describe('ObjectDetailComponent', () => {
           GenerationType: ''
         },
         srcDefaultValue: '',
+        srcGeneratedColExp: '',
         spDefaultValue: {
           Value: {
             ExpressionId: '',
@@ -133,6 +134,7 @@ describe('ObjectDetailComponent', () => {
           Name: '',
           GenerationType: ''
         },
+        srcGeneratedColExp: '',
         srcDefaultValue: '',
         spDefaultValue: {
           Value: {
@@ -469,8 +471,9 @@ describe('ObjectDetailComponent', () => {
         spIsPk: true,
         spIsNotNull: true,
         spColMaxLength: '',
-        spCassandraOption: 'list<bigint>', 
+        spCassandraOption: 'list<bigint>',
         spAutoGen: { Name: '', GenerationType: '' },
+        srcGeneratedColExp: '',
         spDefaultValue: '',
       }),
     ])

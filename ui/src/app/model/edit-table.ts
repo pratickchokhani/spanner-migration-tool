@@ -13,6 +13,7 @@ export default interface IColumnTabData {
   spIsNotNull: boolean
   srcIsNotNull: boolean
   srcDefaultValue: string
+  srcGeneratedColExp: string
   srcId: string
   spId: string
   srcColMaxLength: Number | string | undefined
