@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/GoogleCloudPlatform/spanner-migration-tool/logger"
 	mtrand "math/rand"
 	"sync"
 	"time"
@@ -197,21 +198,38 @@ func (ddlv *DDLVerifierImpl) GetSourceExpressionDetails(conv *internal.Conv, tab
 		srcTable := conv.SrcSchema[tableId]
 		for _, srcColId := range srcTable.ColIds {
 			srcCol := srcTable.ColDefs[srcColId]
+			var expression ddl.Expression
+			var expressionType string
+			isExpressionAvailable := false
 			if srcCol.DefaultValue.IsPresent {
+				expression = srcCol.DefaultValue.Value
+				isExpressionAvailable = true
+				expressionType = constants.DEFAULT_EXPRESSION
+			} else if srcCol.GeneratedColumn.IsPresent {
+				expression = srcCol.GeneratedColumn.Value
+				isExpressionAvailable = true
+				if srcCol.GeneratedColumn.Type == ddl.GeneratedColStored {
+					expressionType = constants.STORED_GENERATED
+				} else {
+					expressionType = constants.VIRTUAL_GENERATED
+				}
+			}
+			if isExpressionAvailable {
 				tyName := conv.SpSchema[tableId].ColDefs[srcColId].T.Name
 				if conv.SpDialect == constants.DIALECT_POSTGRESQL {
 					tyName = ddl.GetPGType(conv.SpSchema[tableId].ColDefs[srcColId].T)
 				}
-				defaultValueExp := internal.ExpressionDetail{
+				expressionDetail := internal.ExpressionDetail{
 					ReferenceElement: internal.ReferenceElement{
 						Name: tyName,
 					},
-					ExpressionId: srcCol.DefaultValue.Value.ExpressionId,
-					Expression:   srcCol.DefaultValue.Value.Statement,
-					Type:         constants.DEFAULT_EXPRESSION,
+					ExpressionId: expression.ExpressionId,
+					Expression:   expression.Statement,
+					Type:         expressionType,
 					Metadata:     map[string]string{"TableId": tableId, "ColId": srcColId},
 				}
-				expressionDetails = append(expressionDetails, defaultValueExp)
+				logger.Log.Info(fmt.Sprintf("AExpression Details: %v", expressionDetail))
+				expressionDetails = append(expressionDetails, expressionDetail)
 			}
 		}
 	}

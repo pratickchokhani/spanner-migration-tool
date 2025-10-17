@@ -129,6 +129,8 @@ const (
 	CHECK_EXPRESSION   = "CHECK"
 	DEFAULT_EXPRESSION = "DEFAULT"
 	DEFAULT_GENERATED  = "DEFAULT_GENERATED"
+	STORED_GENERATED   = "STORED GENERATED"
+	VIRTUAL_GENERATED  = "VIRTUAL GENERATED"
 	TEMP_DB            = "smt-staging-db"
 	DB_URI             = "projects/%s/instances/%s/databases/%s"
 
