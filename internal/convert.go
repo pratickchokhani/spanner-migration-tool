@@ -159,6 +159,7 @@ const (
 	PossibleOverflow
 	IdentitySkipRange
 	GeneratedColumnValueError
+	PrimaryKeyGeneratedColumnError
 )
 
 const (
@@ -333,6 +334,8 @@ type ExpressionDetail struct {
 	Expression       string
 	Type             string
 	SpTableName      string
+	TableId          string
+	IsPrimaryKey     bool
 	Metadata         map[string]string
 }
 

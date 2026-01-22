@@ -108,6 +108,7 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDL(conv *internal.Conv, toddl ToD
 			return err
 		}
 		spannerSchemaApplyExpressions(conv, expressions)
+		expressions, err = ss.DdlV.VerifyPrimaryKeysExpressionsUsingCreateTable(conv, expressionDetails)
 	}
 
 	if (conv.Source == constants.MYSQL || conv.Source == constants.MYSQLDUMP) && conv.SpProjectId != "" && conv.SpInstanceId != "" {
@@ -672,6 +673,15 @@ func CvtIndexHelper(conv *internal.Conv, tableId string, srcIndex schema.Index, 
 		Id:              srcIndex.Id,
 	}
 	return spIndex
+}
+
+func applyExpressionErrors(conv *internal.Conv, expressions internal.VerifyExpressionsOutput) {
+	for _, expression := range expressions.ExpressionVerificationOutputList {
+		if !expression.Result {
+			tableId := expression.ExpressionDetail.TableId
+			tableLevelIssues = append(conv.SchemaIssues[tableId].TableLevelIssues, internal.PrimaryKeyGeneratedColumnError)
+		}
+	}	
 }
 
 // Applies all valid expressions which can be migrated to spanner conv object

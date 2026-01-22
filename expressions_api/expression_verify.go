@@ -22,6 +22,7 @@ type ExpressionVerificationAccessor interface {
 	//Batch API which parallelizes expression verification calls
 	VerifyExpressions(ctx context.Context, verifyExpressionsInput internal.VerifyExpressionsInput) internal.VerifyExpressionsOutput
 	RefreshSpannerClient(ctx context.Context, project string, instance string) error
+	VerifyPrimaryKeysExpressionsUsingCreateTable(ctx context.Context, verifyExpressionsInput internal.VerifyExpressionsInput) internal.VerifyExpressionsOutput
 }
 
 type ExpressionVerificationAccessorImpl struct {
@@ -53,6 +54,7 @@ func NewExpressionVerificationAccessorImpl(ctx context.Context, project string, 
 // APIs to verify and process Spanner DLL features such as Default Values, Check Constraints
 type DDLVerifier interface {
 	VerifySpannerDDL(conv *internal.Conv, expressionDetails []internal.ExpressionDetail) (internal.VerifyExpressionsOutput, error)
+	VerifyPrimaryKeysExpressionsUsingCreateTable(conv *internal.Conv, expressionDetails []internal.ExpressionDetail) (internal.VerifyExpressionsOutput, error)
 	GetSourceExpressionDetails(conv *internal.Conv, tableIds []string) []internal.ExpressionDetail
 	GetSpannerExpressionDetails(conv *internal.Conv, tableIds []string) []internal.ExpressionDetail
 	RefreshSpannerClient(ctx context.Context, project string, instance string) error
@@ -109,6 +111,52 @@ func (ev *ExpressionVerificationAccessorImpl) VerifyExpressions(ctx context.Cont
 	if errorCount != 0 {
 		verifyExpressionsOutput.Err = fmt.Errorf("%d expressions either failed verification or did not get verified. Please look at the individual errors returned for each expression", errorCount)
 
+	}
+	return verifyExpressionsOutput
+}
+
+func (ev *ExpressionVerificationAccessorImpl) VerifyPrimaryKeysExpressionsUsingCreateTable(ctx context.Context, verifyExpressionsInput internal.VerifyExpressionsInput) internal.VerifyExpressionsOutput {
+
+	tableIds := make(map[string]bool)
+	for _, expressionDetail := range verifyExpressionsInput.ExpressionDetailList {
+		if expressionDetail.Type == constants.STORED_GENERATED || expressionDetail.Type == constants.VIRTUAL_GENERATED {
+			if expressionDetail.IsPrimaryKey {
+				tableIds[expressionDetail.TableId] = true
+			}
+		}
+	}
+
+	if len(tableIds) == 0 {
+		return internal.VerifyExpressionsOutput{Err: nil}
+	}
+
+	dbURI := ev.SpannerAccessor.GetDatabaseName()
+	dbExists, err := ev.SpannerAccessor.CheckExistingDb(ctx, dbURI)
+	if err != nil {
+		return internal.VerifyExpressionsOutput{Err: err}
+	}
+	if dbExists {
+		err := ev.SpannerAccessor.DropDatabase(ctx, dbURI)
+		if err != nil {
+			return internal.VerifyExpressionsOutput{Err: err}
+		}
+	}
+	err = ev.SpannerAccessor.CreateEmptyDatabase(ctx, dbURI, verifyExpressionsInput.Conv.SpDialect)
+	if err != nil {
+		return internal.VerifyExpressionsOutput{Err: err}
+	}
+	//Drop the staging database after verifications are completed.
+	defer ev.SpannerAccessor.DropDatabase(ctx, dbURI)
+	//This recreates a spanner client for the staging database before doing operations on it.
+	ev.SpannerAccessor.Refresh(ctx, dbURI)
+	var verifyExpressionsOutput internal.VerifyExpressionsOutput
+	
+	// For each table id, create a table using VerifyCreateTableDDL.
+	for tableId := range tableIds {
+		err := ev.SpannerAccessor.VerifyCreateTableDDL(ctx, dbURI, verifyExpressionsInput.Conv, tableId, verifyExpressionsInput.Source)
+		if err != nil {
+			verifyExpressionsOutput.ExpressionVerificationOutputList = append(verifyExpressionsOutput.ExpressionVerificationOutputList, internal.ExpressionVerificationOutput{Err: err})
+		}
 	}
 	return verifyExpressionsOutput
 }
@@ -193,6 +241,20 @@ func (ddlv *DDLVerifierImpl) VerifySpannerDDL(conv *internal.Conv, expressionDet
 	return verificationResults, verificationResults.Err
 }
 
+func (ddlv *DDLVerifierImpl) VerifyPrimaryKeysExpressionsUsingCreateTable(conv *internal.Conv, expressionDetails []internal.ExpressionDetail) (internal.VerifyExpressionsOutput, error) {
+	ctx := context.Background()
+	verifyExpressionsInput := internal.VerifyExpressionsInput{
+		Conv:                 conv,
+		Source:               conv.Source,
+		ExpressionDetailList: expressionDetails,
+	}
+	ddlv.RefreshSpannerClient(ctx, conv.SpProjectId, conv.SpInstanceId)
+	verificationResults := ddlv.Expressions.VerifyPrimaryKeysExpressionsUsingCreateTable(ctx, verifyExpressionsInput)
+
+	return verificationResults, verificationResults.Err
+	
+}
+
 func (ddlv *DDLVerifierImpl) GetSourceExpressionDetails(conv *internal.Conv, tableIds []string) []internal.ExpressionDetail {
 	expressionDetails := []internal.ExpressionDetail{}
 	// Collect default values for verification
@@ -202,6 +264,13 @@ func (ddlv *DDLVerifierImpl) GetSourceExpressionDetails(conv *internal.Conv, tab
 			srcCol := srcTable.ColDefs[srcColId]
 			var expression ddl.Expression
 			var expressionType string
+			isPrimaryKey := false
+			for _, pk := range srcTable.PrimaryKeys {
+				if pk.ColId == srcColId {
+					isPrimaryKey = true
+					break
+				}
+			}
 			isExpressionAvailable := false
 			if srcCol.DefaultValue.IsPresent {
 				expression = srcCol.DefaultValue.Value
@@ -229,6 +298,8 @@ func (ddlv *DDLVerifierImpl) GetSourceExpressionDetails(conv *internal.Conv, tab
 					Expression:   expression.Statement,
 					Type:         expressionType,
 					SpTableName:  conv.ToSpanner[srcTable.Name].Name,
+					TableId:      tableId,
+					IsPrimaryKey: isPrimaryKey,
 					Metadata:     map[string]string{"TableId": tableId, "ColId": srcColId},
 				}
 				expressionDetails = append(expressionDetails, expressionDetail)
@@ -244,6 +315,13 @@ func (ddlv *DDLVerifierImpl) getExpressionDetail(
 	if conv.SpDialect == constants.DIALECT_POSTGRESQL {
 		tyName = ddl.GetPGType(conv.SpSchema[tableId].ColDefs[spColId].T)
 	}
+	isPrimaryKey := false
+	for _, pk := range conv.SpSchema[tableId].PrimaryKeys {
+		if pk.ColId == spColId {
+			isPrimaryKey = true
+			break
+		}
+	}
 	expressionDetail := internal.ExpressionDetail{
 		ReferenceElement: internal.ReferenceElement{
 			Name: tyName,
@@ -251,6 +329,8 @@ func (ddlv *DDLVerifierImpl) getExpressionDetail(
 		ExpressionId: expressionId,
 		Expression:   expression,
 		Type:         expressionType,
+		TableId:      tableId,
+		IsPrimaryKey: isPrimaryKey,
 		Metadata:     map[string]string{"TableId": tableId, "ColId": spColId},
 		SpTableName:  conv.SpSchema[tableId].Name,
 	}
