@@ -33,9 +33,10 @@ import { defaultAndSequenceSupportedDbs, identitySupportedDbs, generatedColSuppo
 import ICcTabData from 'src/app/model/cc-tab-data'
 import { title } from 'process'
 @Component({
-  selector: 'app-object-detail',
-  templateUrl: './object-detail.component.html',
-  styleUrls: ['./object-detail.component.scss'],
+    selector: 'app-object-detail',
+    templateUrl: './object-detail.component.html',
+    styleUrls: ['./object-detail.component.scss'],
+    standalone: false
 })
 export class ObjectDetailComponent implements OnInit, OnDestroy {
   userAddressValidations!: FormGroup
